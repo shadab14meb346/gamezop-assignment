@@ -7,3 +7,4 @@ A basic react webapp with typescript.
 https://wizardly-mirzakhani-0071d3.netlify.app/users
 
 # Preview
+https://github.com/shadab14meb346/gamezop-assignment/blob/master/gamezop-app-demo.gif
