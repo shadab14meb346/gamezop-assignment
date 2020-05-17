@@ -31,7 +31,6 @@ const Header = () => {
 		fetch(URL)
 			.then((response) => response.json())
 			.then((users) => {
-				console.log(users);
 				loading = false;
 				setUsers(users);
 			})
@@ -77,14 +76,16 @@ const Header = () => {
 									setTopUsers={setTopUsers}
 									setBlockedUsers={setBlockedUsers}
 									routeType={"users"}
+									setUsers={setUsers}
 								/>
 							</Route>
 							<Route path='/top-users'>
 								<UsersTable
-									users={topUsers}
+									users={JSON.parse(localStorage.getItem("topUsers"))}
 									setTopUsers={setTopUsers}
 									setBlockedUsers={setBlockedUsers}
 									routeType={"top-users"}
+									setUsers={setUsers}
 								/>
 							</Route>
 						</Switch>

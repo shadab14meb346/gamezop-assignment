@@ -3,6 +3,7 @@ import Toggle from "./Toggle";
 import "../styles/usersTables.css";
 
 interface User {
+	id: number;
 	name: string;
 	email: string;
 	username: string;
@@ -11,7 +12,11 @@ const tableHeadings = ["User", "User Name", "Email", "Block/UnBlock"];
 const unBlockingTimeInMinutes: number = 5;
 const unBlockingTimeInMilliseconds: number =
 	unBlockingTimeInMinutes * 60 * 1000;
-//make this time 5 minutes.
+
+const isTopUser = (userId) => {
+	let topUsersIds = localStorage.getItem("topUsersIds");
+	return topUsersIds && topUsersIds.includes(userId);
+};
 
 const blockUser = (username: string, setBlockedUsers: Function) => {
 	localStorage.setItem(username, "true");
@@ -27,27 +32,65 @@ const unblockUser = (username: string, setBlockedUsers: Function) => {
 	});
 };
 
-const handleTopUserClick = (event: any, user: User, setTopUsers: Function) => {
-	event.persist();
-	console.log(event.target.value, user.name);
-	setTopUsers((prevState: Array<User>) => {
-		return prevState.concat(user);
-	});
-};
-const UsersTable = ({ users, setBlockedUsers, routeType, setTopUsers }) => {
-	const handleBlockToggle = (event: any) => {
-		event.persist();
-		const username = event.target.value;
-		const blockedUser = localStorage.getItem(username);
-		if (blockedUser) {
+const handleBlockToggle = (event: any, setBlockedUsers: Function) => {
+	const username = event.target.value;
+	const blockedUser = localStorage.getItem(username);
+	if (blockedUser) {
+		unblockUser(username, setBlockedUsers);
+	} else {
+		blockUser(username, setBlockedUsers);
+		setTimeout(() => {
 			unblockUser(username, setBlockedUsers);
+		}, unBlockingTimeInMilliseconds);
+	}
+};
+
+const handleTopUserClick = (
+	event: any,
+	user: User,
+	setUsers: Function,
+	setTopUsers: Function,
+) => {
+	let topUsersIds = localStorage.getItem("topUsersIds");
+	let topUsers = localStorage.getItem("topUsers");
+	if (topUsersIds && topUsers) {
+		let topUsersIdsArray = JSON.parse(topUsersIds);
+		let topUsersArray = JSON.parse(topUsers);
+		if (topUsersIdsArray.includes(user.id)) {
+			const updatedTopUsersIdArray = topUsersIdsArray.filter(
+				(id) => id !== user.id,
+			);
+			localStorage.setItem(
+				"topUsersIds",
+				JSON.stringify(updatedTopUsersIdArray),
+			);
+			const updatedTopUsersArray = topUsersArray.filter(
+				(topUser) => topUser.id !== user.id,
+			);
+			localStorage.setItem("topUsers", JSON.stringify(updatedTopUsersArray));
+			setTopUsers(topUsersArray);
 		} else {
-			blockUser(username, setBlockedUsers);
-			setTimeout(() => {
-				unblockUser(username, setBlockedUsers);
-			}, unBlockingTimeInMilliseconds);
+			localStorage.setItem(
+				"topUsersIds",
+				JSON.stringify(topUsersIdsArray.concat(user.id)),
+			);
+			const updatedTopUsersArray = JSON.stringify(topUsersArray.concat(user));
+			localStorage.setItem("topUsers", updatedTopUsersArray);
+			setTopUsers(updatedTopUsersArray);
 		}
-	};
+	} else {
+		localStorage.setItem("topUsersIds", JSON.stringify([user.id]));
+		localStorage.setItem("topUsers", JSON.stringify([user]));
+	}
+};
+
+const UsersTable = ({
+	users,
+	setUsers,
+	setBlockedUsers,
+	routeType,
+	setTopUsers,
+}) => {
 	return (
 		<table>
 			<tr>
@@ -57,7 +100,7 @@ const UsersTable = ({ users, setBlockedUsers, routeType, setTopUsers }) => {
 				{routeType === "users" ? <th>Top User</th> : null}
 			</tr>
 			{users.map((user, index) => {
-				const { name, username, email } = user;
+				const { name, username, email, id } = user;
 				return (
 					<tr key={index}>
 						<td>{name}</td>
@@ -66,7 +109,9 @@ const UsersTable = ({ users, setBlockedUsers, routeType, setTopUsers }) => {
 						<td>
 							<Toggle
 								username={username}
-								handleBlockToggle={handleBlockToggle}
+								handleBlockToggle={() =>
+									handleBlockToggle(event, setBlockedUsers)
+								}
 							/>
 							{localStorage.getItem(username) === "true" ? (
 								<span>Blocked</span>
@@ -77,9 +122,10 @@ const UsersTable = ({ users, setBlockedUsers, routeType, setTopUsers }) => {
 								<input
 									type='checkbox'
 									value={username}
-									id={username}
+									checked={isTopUser(id)}
+									id={id}
 									onChange={(event) => {
-										handleTopUserClick(event, user, setTopUsers);
+										handleTopUserClick(event, user, setUsers, setTopUsers);
 									}}
 								/>
 							</td>
