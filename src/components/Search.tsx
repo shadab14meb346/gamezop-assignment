@@ -24,13 +24,11 @@ const Search = ({ users, searchInput, setSearchInput, setSelectedUser }) => {
 
 	const handleChange = (event: any) => {
 		if (event.target.value) {
-			console.log(searchResults);
 			setSearchInput(event.target.value.trim());
 			searchUser(users, searchInput, setSearchResults);
 		}
 	};
 	const showDetails = (user: User) => {
-		console.log(user);
 		setSearchResults([]);
 		setSelectedUser(user);
 	};

@@ -3,12 +3,10 @@ import React, { useState } from "react";
 import "../styles/drawer.css";
 
 const closeNav = (setOpenSideNav: Function) => {
-	console.log("CLOSE");
 	setOpenSideNav(false);
 };
 
 const openNav = (setOpenSideNav: Function) => {
-	console.log("OPEN");
 	setOpenSideNav(true);
 };
 const Drawer = () => {
