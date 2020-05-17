@@ -81,7 +81,7 @@ const Header = () => {
 							</Route>
 							<Route path='/top-users'>
 								<UsersTable
-									users={JSON.parse(localStorage.getItem("topUsers"))}
+									users={JSON.parse(localStorage.getItem("topUsers")) || []}
 									setTopUsers={setTopUsers}
 									setBlockedUsers={setBlockedUsers}
 									routeType={"top-users"}
